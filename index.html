@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P.U.N.C.H Arcade Game</title>
+    <!-- Tailwind CSS for modern responsive UI menus -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="w-screen h-screen flex flex-col justify-center items-center relative">
+
+    <div id="crt-overlay" class="absolute inset-0 scanlines z-50 pointer-events-none transition-opacity duration-300"></div>
+
+    <div id="game-container" class="relative w-full max-w-5xl h-[720px] bg-slate-900 border-4 border-amber-500 rounded-xl crt-screen flex flex-col overflow-hidden shadow-2xl">
+        
+        <!-- MAIN MENU -->
+        <div id="menu-screen" class="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 flex flex-col justify-between items-center p-8 z-30">
+            <div class="text-center mt-6">
+                <h1 class="text-6xl md:text-8xl arcade-font text-amber-400 tracking-wider drop-shadow-[0_5px_15px_rgba(245,158,11,0.7)] animate-pulse">P.U.N.C.H</h1>
+                <p class="text-xs md:text-sm text-amber-200 mt-3 tracking-widest uppercase">Ultimate Retro Arcade Boxing Championship</p>
+            </div>
+
+            <div class="flex flex-col gap-4 w-72 md:w-80 my-auto">
+                <button onclick="showModeSelect()" class="py-4 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 arcade-font text-sm md:text-base font-bold rounded-lg shadow-lg transform transition active:scale-95 border-2 border-amber-300 cursor-pointer">
+                    PLAY GAME
+                </button>
+                <button onclick="showFighterSelect()" class="py-4 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white arcade-font text-sm md:text-base font-bold rounded-lg shadow-lg transform transition active:scale-95 border-2 border-blue-400 cursor-pointer">
+                    FIGHTER SELECT
+                </button>
+                <button onclick="showSettings()" class="py-4 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white arcade-font text-sm md:text-base font-bold rounded-lg shadow-lg transform transition active:scale-95 border-2 border-emerald-400 cursor-pointer">
+                    SETTINGS
+                </button>
+                <button onclick="leaveGame()" class="py-4 bg-gradient-to-r from-rose-700 to-red-800 hover:from-rose-600 hover:to-red-700 text-white arcade-font text-sm md:text-base font-bold rounded-lg shadow-lg transform transition active:scale-95 border-2 border-rose-500 cursor-pointer">
+                    LEAVE GAME
+                </button>
+            </div>
+
+            <div class="text-xs text-slate-400 arcade-font text-center flex justify-between w-full px-4">
+                <span>HIGH SCORE: <span id="menu-highscore" class="text-amber-400">10,500</span></span>
+                <span>©️ 2026 ARCADE STUDIOS V3.0</span>
+            </div>
+        </div>
+
+        <!-- MODE SELECT SCREEN -->
+        <div id="mode-screen" class="absolute inset-0 bg-slate-950 flex flex-col justify-between items-center p-8 z-30 hidden">
+            <div class="text-center mt-6">
+                <h2 class="text-4xl md:text-5xl arcade-font text-amber-400">SELECT GAME MODE</h2>
+                <p class="text-xs text-slate-400 mt-2">Choose your arena experience</p>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-6 my-auto justify-center items-center w-full max-w-4xl">
+                <!-- Single Player Career -->
+                <div onclick="selectMode('single')" class="flex-1 bg-slate-900 border-4 border-blue-500 hover:border-amber-400 rounded-xl p-6 flex flex-col items-center cursor-pointer transition transform hover:scale-105 shadow-xl">
+                    <div class="text-5xl mb-4">🥊</div>
+                    <h3 class="arcade-font text-lg text-amber-300 mb-2 text-center">SINGLE PLAYER</h3>
+                    <p class="text-xs text-slate-300 text-center leading-relaxed">Battle through the 4 legendary opponents in the arcade career ladder with high/low guards & counter star punches!</p>
+                </div>
+
+                <!-- 2 Player Versus -->
+                <div onclick="selectMode('pvp')" class="flex-1 bg-slate-900 border-4 border-rose-500 hover:border-amber-400 rounded-xl p-6 flex flex-col items-center cursor-pointer transition transform hover:scale-105 shadow-xl">
+                    <div class="text-5xl mb-4">👥</div>
+                    <h3 class="arcade-font text-lg text-amber-300 mb-2 text-center">2-PLAYER VERSUS</h3>
+                    <p class="text-xs text-slate-300 text-center leading-relaxed">Local head-to-head match on the same keyboard! P1 uses WASD + punches, P2 uses ARROWS + punches.</p>
+                </div>
+            </div>
+
+            <div>
+                <button onclick="returnToMenu()" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white arcade-font text-xs rounded-lg border border-slate-600 cursor-pointer">
+                    BACK TO MENU
+                </button>
+            </div>
+        </div>
+
+        <!-- FIGHTER SELECT SCREEN -->
+        <div id="fighter-screen" class="absolute inset-0 bg-slate-950 flex flex-col justify-between items-center p-6 z-30 hidden">
+            <div class="text-center">
+                <h2 class="text-3xl md:text-4xl arcade-font text-amber-400">SELECT YOUR CHAMPION</h2>
+                <p class="text-xs text-slate-400 mt-1">Each contender features distinct speed, stamina & knockout power</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-5xl my-auto">
+                <!-- Fighter 1 -->
+                <div onclick="setFighter(0)" id="fighter-card-0" class="fighter-card bg-slate-900 border-2 border-amber-400 rounded-xl p-4 flex flex-col items-center cursor-pointer transition hover:bg-slate-800 shadow-lg">
+                    <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-3xl shadow-md mb-2">👦</div>
+                    <h3 class="arcade-font text-xs text-amber-300 text-center">MAC</h3>
+                    <p class="text-[10px] text-slate-400 text-center mt-1">Balanced Contender<br>HP: 100 | Pwr: 12</p>
+                </div>
+                <!-- Fighter 2 -->
+                <div onclick="setFighter(1)" id="fighter-card-1" class="fighter-card bg-slate-900 border-2 border-slate-700 rounded-xl p-4 flex flex-col items-center cursor-pointer transition hover:bg-slate-800 shadow-lg">
+                    <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center text-3xl shadow-md mb-2">🐻</div>
+                    <h3 class="arcade-font text-xs text-amber-300 text-center">HIPPO KING</h3>
+                    <p class="text-[10px] text-slate-400 text-center mt-1">Heavyweight Brute<br>HP: 140 | Pwr: 18</p>
+                </div>
+                <!-- Fighter 3 -->
+                <div onclick="setFighter(2)" id="fighter-card-2" class="fighter-card bg-slate-900 border-2 border-slate-700 rounded-xl p-4 flex flex-col items-center cursor-pointer transition hover:bg-slate-800 shadow-lg">
+                    <div class="w-20 h-20 bg-emerald-600 rounded-full flex items-center justify-center text-3xl shadow-md mb-2">🐯</div>
+                    <h3 class="arcade-font text-xs text-amber-300 text-center">MYSTIC TIGER</h3>
+                    <p class="text-[10px] text-slate-400 text-center mt-1">Lightning Speed<br>HP: 85 | Pwr: 10</p>
+                </div>
+                <!-- Fighter 4 -->
+                <div onclick="setFighter(3)" id="fighter-card-3" class="fighter-card bg-slate-900 border-2 border-slate-700 rounded-xl p-4 flex flex-col items-center cursor-pointer transition hover:bg-slate-800 shadow-lg">
+                    <div class="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center text-3xl shadow-md mb-2">👑</div>
+                    <h3 class="arcade-font text-xs text-amber-300 text-center">IRON BRAWN</h3>
+                    <p class="text-[10px] text-slate-400 text-center mt-1">Undefeated Champion<br>HP: 120 | Pwr: 15</p>
+                </div>
+            </div>
+
+            <div>
+                <button onclick="returnToMenu()" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white arcade-font text-xs rounded-lg border border-slate-600 cursor-pointer">
+                    CONFIRM & BACK
+                </button>
+            </div>
+        </div>
+
+        <!-- SETTINGS SCREEN -->
+        <div id="settings-screen" class="absolute inset-0 bg-slate-950 flex flex-col justify-between items-center p-8 z-30 hidden">
+            <div class="text-center mt-4">
+                <h2 class="text-4xl arcade-font text-amber-400">SETTINGS & MODES</h2>
+            </div>
+
+            <div class="flex flex-col gap-5 w-full max-w-md my-auto bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-xl">
+                <!-- Volume Slider -->
+                <div class="flex flex-col gap-2">
+                    <label class="arcade-font text-xs text-slate-300">MASTER AUDIO VOLUME</label>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.7" onchange="updateVolume(this.value)" class="accent-amber-500 cursor-pointer">
+                </div>
+
+                <!-- CRT Scanline Toggle -->
+                <div class="flex justify-between items-center">
+                    <span class="arcade-font text-xs text-slate-300">CRT SCANLINES</span>
+                    <button id="btn-scanlines" onclick="toggleScanlines()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white arcade-font text-xs rounded-lg">ENABLED</button>
+                </div>
+
+                <!-- Screen Shake Toggle -->
+                <div class="flex justify-between items-center">
+                    <span class="arcade-font text-xs text-slate-300">SCREEN SHAKE</span>
+                    <button id="btn-shake" onclick="toggleShake()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white arcade-font text-xs rounded-lg">ENABLED</button>
+                </div>
+
+                <!-- Visual Color Theme -->
+                <div class="flex justify-between items-center">
+                    <span class="arcade-font text-xs text-slate-300">COLOR THEME</span>
+                    <select id="theme-select" onchange="changeTheme(this.value)" class="bg-slate-800 text-amber-400 arcade-font text-xs p-2 rounded border border-slate-600">
+                        <option value="arcade">Classic Arcade</option>
+                        <option value="neon">Cyber Neon</option>
+                        <option value="nes">Retro 8-Bit</option>
+                    </select>
+                </div>
+
+                <!-- Lame Mode Toggle (Teddy Bear Assistance) -->
+                <div class="flex justify-between items-center border-t border-slate-800 pt-4">
+                    <div>
+                        <span class="arcade-font text-xs text-amber-400">LAME MODE</span>
+                        <p class="text-[10px] text-slate-400">Teddy bear gloves & rainbow confetti</p>
+                    </div>
+                    <button id="btn-lamemode" onclick="toggleLameMode()" class="px-4 py-2 bg-rose-700 hover:bg-rose-600 text-white arcade-font text-xs rounded-lg">OFF</button>
+                </div>
+            </div>
+
+            <div>
+                <button onclick="returnToMenu()" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 text-white arcade-font text-xs rounded-lg border border-slate-600 cursor-pointer">
+                    SAVE & BACK
+                </button>
+            </div>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="game-screen" class="absolute inset-0 bg-slate-900 flex flex-col justify-between z-25 hidden">
+            <!-- HUD Header -->
+            <div class="bg-slate-950 p-3 border-b-4 border-amber-500 flex justify-between items-center">
+                <!-- Player 1 Status -->
+                <div class="flex flex-col w-4/12">
+                    <div class="flex justify-between items-center mb-1">
+                        <span id="p1-name" class="arcade-font text-xs text-amber-400">P1 (MAC)</span>
+                        <span id="p1-hp-text" class="arcade-font text-xs text-emerald-400">100/100</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-600 mb-1">
+                        <div id="p1-hp-bar" class="bg-emerald-500 h-full w-full transition-all duration-150"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] arcade-font text-amber-300">
+                        <span>STAMINA:</span>
+                        <div class="w-24 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-600">
+                            <div id="p1-stamina-bar" class="bg-blue-400 h-full w-full transition-all duration-150"></div>
+                        </div>
+                        <span>STARS: <span id="p1-stars" class="text-amber-400">⭐⭐⭐</span></span>
+                    </div>
+                </div>
+
+                <!-- Match Clock & Round -->
+                <div class="flex flex-col items-center">
+                    <span id="match-round" class="arcade-font text-[10px] text-slate-400">ROUND 1</span>
+                    <div id="match-timer" class="arcade-font text-2xl text-amber-400">99</div>
+                </div>
+
+                <!-- Player 2 / AI Status -->
+                <div class="flex flex-col w-4/12 items-end">
+                    <div class="flex justify-between items-center mb-1 w-full">
+                        <span id="p2-hp-text" class="arcade-font text-xs text-rose-400 text-right">100/100</span>
+                        <span id="p2-name" class="arcade-font text-xs text-rose-400">CPU (HIPPO)</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-600 mb-1 flex justify-end">
+                        <div id="p2-hp-bar" class="bg-rose-500 h-full w-full transition-all duration-150"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] arcade-font text-amber-300 w-full">
+                        <span>STARS: <span id="p2-stars" class="text-amber-400">⭐</span></span>
+                        <div class="w-24 bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-600">
+                            <div id="p2-stamina-bar" class="bg-rose-400 h-full w-full transition-all duration-150"></div>
+                        </div>
+                        <span>:STAMINA</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Arena -->
+            <div id="canvas-wrapper" class="relative flex-1 bg-slate-900 overflow-hidden flex justify-center items-center">
+                <canvas id="gameCanvas" class="w-full h-full block bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950"></canvas>
+                
+                <!-- Announcer Banner Overlay -->
+                <div id="announcer-banner" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300 z-30">
+                    <h2 id="announcer-text" class="arcade-font text-5xl md:text-7xl text-amber-400 drop-shadow-[0_10px_20px_rgba(0,0,0,0.9)] text-center scale-75 transition-transform duration-300">FIGHT!</h2>
+                </div>
+
+                <!-- Knockdown Count Overlay -->
+                <div id="knockdown-overlay" class="absolute inset-0 bg-black/70 flex flex-col justify-center items-center z-40 hidden">
+                    <h3 class="arcade-font text-xs text-amber-300 mb-2">KNOCKDOWN COUNT!</h3>
+                    <div id="count-number" class="arcade-font text-8xl text-red-500 animate-pulse mb-6">10</div>
+                    <p class="arcade-font text-xs text-white animate-bounce">MASH SPACEBAR OR W/S TO GET UP!</p>
+                </div>
+            </div>
+
+            <!-- Controls Helper Footer -->
+            <div class="bg-slate-950 p-2 border-t-2 border-slate-800 flex justify-between text-[10px] text-slate-400 arcade-font">
+                <div>P1: WASD (Move/Dodge/Block) | J (Face Jab) U (Face Hook) | H (Body Punch) | SPACE (Star Punch)</div>
+                <div id="p2-controls-label">P2: ARROWS (Move/Dodge/Block) | N (Face Jab) 7 (Face Hook) | M (Body) | , (Star)</div>
+            </div>
+        </div>
+
+        <!-- GAME OVER / VICTORY MODAL -->
+        <div id="gameover-modal" class="absolute inset-0 bg-black/85 backdrop-blur-md flex flex-col justify-center items-center p-8 z-40 hidden">
+            <h2 id="gameover-title" class="arcade-font text-5xl text-amber-400 mb-4 animate-bounce">VICTORY!</h2>
+            <p id="gameover-desc" class="arcade-font text-xs text-slate-300 mb-8 text-center">Player 1 wins the championship belt!</p>
+            <div class="flex gap-4">
+                <button onclick="restartMatch()" class="px-6 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 arcade-font text-xs font-bold rounded-lg cursor-pointer shadow-lg">
+                    REMATCH
+                </button>
+                <button onclick="returnToMenu()" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white arcade-font text-xs rounded-lg cursor-pointer border border-slate-600">
+                    MAIN MENU
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="scrript.js"></script>
+</body>
+</html>
